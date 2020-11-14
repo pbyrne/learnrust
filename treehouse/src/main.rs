@@ -3,20 +3,41 @@ use std::io::stdin;
 #[derive(Debug)]
 struct Visitor {
     name: String,
-    greeting: String,
+    action: VisitorAction,
+    age: i8,
 }
 
 impl Visitor {
-    fn new(name: &str, greeting: &str) -> Self {
+    fn new(name: &str, action: VisitorAction, age: i8) -> Self {
         Self {
             name: name.to_lowercase(),
-            greeting: greeting.to_lowercase(),
+            action,
+            age,
         }
     }
 
     fn greet_visitor(&self) {
-        println!("{}", self.greeting)
+        match &self.action {
+            VisitorAction::Accept => println!("Welcome to the treehouse, {}!", self.name),
+            VisitorAction::AcceptWithNote { note } => {
+                println!("Welcome to the treehouse, {}!", self.name);
+                println!("{}", note);
+                if self.age < 21 {
+                    println!("Do not serve alcohol to {}", self.name);
+                }
+            },
+            VisitorAction::Probation => println!("{} is now a probationary member", self.name),
+            VisitorAction::Refuse => println!("Do not allow {} in!", self.name),
+        }
     }
+}
+
+#[derive(Debug)]
+enum VisitorAction {
+    Accept,
+    AcceptWithNote { note: String },
+    Refuse,
+    Probation,
 }
 
 fn what_is_your_name() -> String {
@@ -31,9 +52,9 @@ fn what_is_your_name() -> String {
 
 fn main() {
     let mut visitor_list = vec![
-        Visitor::new("bert", "Hello Bert, enjoy your treehouse."),
-        Visitor::new("steve", "Hello Steve. Your milk is in the fridge."),
-        Visitor::new("fred", "Hello Fred, enjoy your visit."),
+        Visitor::new("bert", VisitorAction::Accept, 18),
+        Visitor::new("steve", VisitorAction::Accept, 30),
+        Visitor::new("fred", VisitorAction::Accept, 0),
     ];
 
     loop {
@@ -51,7 +72,7 @@ fn main() {
                     break;
                 } else {
                     println!("{} is not in the visitor list.", name);
-                    visitor_list.push(Visitor::new(&name, "New friend."));
+                    visitor_list.push(Visitor::new(&name, VisitorAction::Probation, 0));
                 }
             }
         }
